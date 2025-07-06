@@ -152,13 +152,15 @@
         }
 
         async function checkOut() {
+            const note = prompt("Add a note for your clock-out (optional):");
             const token = localStorage.getItem('token');
             const res = await fetch('/clock-out', {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
-                }
+                },
+                body: JSON.stringify({ note })
             });
             const data = await res.json();
             alert(data.message);

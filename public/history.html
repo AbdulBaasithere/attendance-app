@@ -41,6 +41,7 @@
                     <th>Clock Out</th>
                     <th>Hours</th>
                     <th>Status</th>
+                    <th>Note</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -81,7 +82,8 @@
                             <td>${new Date(r.clockInTime).toLocaleTimeString()}</td>
                             <td>${r.clockOutTime ? new Date(r.clockOutTime).toLocaleTimeString() : 'N/A'}</td>
                             <td>${r.durationHours} hrs</td>
-                            <td>${r.status}</td>`;
+                            <td>${r.status}</td>
+                            <td>${r.note || ''}</td>`;
                         tbody.appendChild(tr);
                     });
                 });

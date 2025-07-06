@@ -2,13 +2,14 @@
 const mongoose = require('mongoose');
 
 const attendanceSchema = new mongoose.Schema({
-    id: String,
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     name: String,
     clockInTime: Date,
     clockOutTime: Date,
     durationMs: Number,
     durationHours: String,
-    status: String,
+    status: { type: String, required: true },
+    note: { type: String },
     timestamp: String
 });
 
