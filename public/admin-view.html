@@ -1,32 +1,92 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin View</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin View</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
 </head>
-<body class="p-4">
-  <h2>👩‍💼 Admin Panel - Attendance Overview</h2>
-  <div id="adminTableBox">
-    <table class="table table-striped mt-4">
-      <thead>
-        <tr><th>User ID</th><th>Name</th><th>Clock In</th><th>Clock Out</th><th>Status</th></tr>
-      </thead>
-      <tbody id="adminBody"></tbody>
-    </table>
-  </div>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4">
+        <a class="navbar-brand fw-bold" href="#">Quick Attend</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link" href="/index.html">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="/history.html">My History</a></li>
+                <li class="nav-item" id="adminLink" style="display: none;"><a class="nav-link active" href="/admin-view.html">Admin View</a></li>
+                <li class="nav-item"><a class="nav-link" href="/settings.html">Settings</a></li>
+                <li class="nav-item"><a class="nav-link" href="/notifications.html">Notifications</a></li>
+            </ul>
+            <div id="authButtons">
+                <a href="/login.html" class="btn btn-primary me-2">Log In</a>
+                <a href="/signup.html" class="btn btn-outline-secondary">Sign Up</a>
+            </div>
+            <div id="logoutButton" style="display: none;">
+                <button class="btn btn-danger" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
 
-  <script>
-    fetch('/attendance-records')
-      .then(res => res.json())
-      .then(data => {
-        const tbody = document.getElementById('adminBody');
-        data.forEach(r => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `<td>${r.id}</td><td>${r.name}</td><td>${new Date(r.clockInTime).toLocaleTimeString()}</td><td>${new Date(r.clockOutTime).toLocaleTimeString()}</td><td>${r.status}</td>`;
-          tbody.appendChild(tr);
+    <div class="container p-4">
+        <h2>👩‍💼 Admin Panel - Attendance Overview</h2>
+        <div id="adminTableBox">
+            <table class="table table-striped mt-4">
+                <thead>
+                    <tr><th>User ID</th><th>Name</th><th>Clock In</th><th>Clock Out</th><th>Status</th></tr>
+                </thead>
+                <tbody id="adminBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                document.getElementById('authButtons').style.display = 'none';
+                document.getElementById('logoutButton').style.display = 'block';
+
+                fetch('/user-info', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.role === 'admin') {
+                        document.getElementById('adminLink').style.display = 'block';
+                    }
+                });
+
+            } else {
+                window.location.href = '/login.html';
+            }
+
+            fetch('/attendance-records', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                const tbody = document.getElementById('adminBody');
+                data.forEach(r => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${r.userId}</td><td>${r.name}</td><td>${new Date(r.clockInTime).toLocaleTimeString()}</td><td>${r.clockOutTime ? new Date(r.clockOutTime).toLocaleTimeString() : 'N/A'}</td><td>${r.status}</td>`;
+                    tbody.appendChild(tr);
+                });
+            });
         });
-      });
-  </script>
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = '/login.html';
+        }
+    </script>
 </body>
 </html>

@@ -145,7 +145,7 @@ app.post('/logout', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+    res.sendFile(path.join(__dirname, 'public', 'signup.html'));
 });
 
 app.get('/signup-page', (req, res) => res.sendFile(path.join(__dirname, 'public', 'signup.html')));
