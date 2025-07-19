@@ -31,6 +31,16 @@ const requestLogger = (req, _, next) => {
   next();
 };
 
+const userSchema = new mongoose.Schema({
+    userId: { type: Number, unique: true },
+    username: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    role: { type: String, default: 'user' }
+});
+const User = mongoose.model('User', userSchema);
+
+
+
 const auth = async (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) return res.status(401).json({ message: 'Auth required' });
@@ -47,13 +57,6 @@ const auth = async (req, res, next) => {
 app.use(express.json(), express.urlencoded({ extended: true }), requestLogger);
 app.use(express.static(path.join(__dirname, 'public')));
 
-const userSchema = new mongoose.Schema({
-  userId: { type: Number, unique: true },
-  username: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  role: { type: String, default: 'user' }
-});
-const User = mongoose.model('User', userSchema);
 
 app.post('/signup', async (req, res) => {
   const { username, password } = req.body;
@@ -117,6 +120,22 @@ app.post('/clock-out', auth, async (req, res) => {
     logEvent('CLOCK_OUT_ERR', err.message);
     res.status(500).json({ message: 'Clock-out error' });
   }
+});
+
+app.get('/admin/attendance-records', authMiddleware, async (req, res) => {
+    try {
+        // Check if user is admin
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ message: 'Access denied. Admin role required.' });
+        }
+        
+        await eventLogger('ADMIN_ATTENDANCE_FETCH', 'Admin requested all attendance records.');
+        const records = await Attendance.find({}).populate('userId', 'username');
+        res.status(200).json(records);
+    } catch (err) {
+        await eventLogger('ADMIN_ATTENDANCE_FETCH_ERROR', 'Error fetching all attendance records', { error: err.message });
+        res.status(500).json({ message: 'Server error while fetching records.' });
+    }
 });
 
 app.get('/attendance-records', auth, async (req, res) => {
