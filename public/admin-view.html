@@ -51,6 +51,7 @@
                 document.getElementById('authButtons').style.display = 'none';
                 document.getElementById('logoutButton').style.display = 'block';
 
+                
                 fetch('/user-info', {
                     headers: {
                         'Authorization': `Bearer ${token}`

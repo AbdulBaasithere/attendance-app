@@ -122,7 +122,7 @@ app.post('/clock-out', auth, async (req, res) => {
   }
 });
 
-app.get('/admin/attendance-records', authMiddleware, async (req, res) => {
+app.get('/admin/attendance-records', auth, async (req, res) => {
     try {
         // Check if user is admin
         if (req.user.role !== 'admin') {
